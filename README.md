@@ -42,6 +42,19 @@ VSCode is a powerful, open-source IDE that supports many programming languages a
 5. **Article: "GitHub Actions: Basics"**
    - URL: [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)
    - Purpose: To understand the basics of GitHub Actions for CI/CD.
+_____NEW_______
+6. **Article: "Implementing the REPL Pattern in Python"**
+   - URL: [REPL Pattern in Python](https://realpython.com/python-repl/)
+   - Purpose: To understand how to create a Read-Eval-Print Loop for interactive programs.
+
+7. **Article: "DRY (Don't Repeat Yourself) Principle in Python"**
+   - URL: [DRY Principle](https://www.makeuseof.com/python-dry-principle/)
+   - Purpose: To understand and apply the DRY principle for writing maintainable and efficient Python code.
+
+8. **Article: "Comprehensive Guide to Testing in Python"**
+   - URL: [Testing in Python](https://realpython.com/python-testing/)
+   - Purpose: To learn comprehensive testing strategies using pytest.
+
 
 ### Watch
 
@@ -82,7 +95,7 @@ VSCode is a powerful, open-source IDE that supports many programming languages a
 - Create a new Git repository locally and a repository on GitHub. You will upload/push your local repo to GitHub.
 - Set up a Python project in VSCode.
 - Create a virtual environment for your project.
-- Write a simple calculator application that includes functions for addition, subtraction, multiplication, and division.
+- Write a simple command line calculator application that includes functions for addition, subtraction, multiplication, and division.
 - Write tests for each calculator function using pytest.
 - Configure GitHub Actions to run your tests automatically on each push to the repository.
 - Push your code and configuration to GitHub and ensure that GitHub Actions runs your tests successfully.
