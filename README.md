@@ -48,15 +48,11 @@ _____NEW_______
    - URL: [Command-Line Applications in Python](https://realpython.com/command-line-interfaces-python-argparse/)
    - Purpose: To learn techniques for creating interactive command-line applications.
 
-7. **Article: "Implementing the REPL Pattern in Python"**
-   - URL: [REPL Pattern in Python](https://realpython.com/python-repl/)
-   - Purpose: To understand how to create a Read-Eval-Print Loop for interactive programs.
-
-8. **Article: "DRY (Don't Repeat Yourself) Principle in Python"**
+7. **Article: "DRY (Don't Repeat Yourself) Principle in Python"**
    - URL: [DRY Principle](https://www.makeuseof.com/python-dry-principle/)
    - Purpose: To understand and apply the DRY principle for writing maintainable and efficient Python code.
 
-9. **Article: "Comprehensive Guide to Testing in Python"**
+8. **Article: "Comprehensive Guide to Testing in Python"**
    - URL: [Testing in Python](https://realpython.com/python-testing/)
    - Purpose: To learn comprehensive testing strategies using pytest.
 
