@@ -1,339 +1,495 @@
-# Welcome to the Ultimate OOP Masterclass with Design Patterns, Logging, and Debugging!
-# In this program, we will learn about Object-Oriented Programming (OOP), design patterns, and the importance of logging and debugging.
-# Logging helps us track what happens in our program, while debugging helps us find and fix errors when things go wrong.
-# Let’s dive in and explain everything step-by-step with detailed comments!
+# Ultimate Guide to OOP Design Patterns: Building a Calculator with Logging and Debugging
 
-import logging  # Importing Python's built-in logging module for logging events.
-import pdb  # Importing Python's built-in debugger for debugging.
-from abc import ABC, abstractmethod  # This allows us to create abstract classes and methods.
-from dataclasses import dataclass  # Dataclasses make it easy to store structured data.
-from typing import List  # We use List to tell Python when we are working with lists (like a list of calculations).
+# ==============================================================================
+# IMPORTING NECESSARY MODULES
+# ==============================================================================
 
-# ------------------------------------------------------------------------------
-# SETUP LOGGING
-# ------------------------------------------------------------------------------
+import logging  # Standard Python module for logging events and messages.
+# Documentation: https://docs.python.org/3/library/logging.html
 
-# First, we set up logging so that we can record what happens in our program.
-# Logging is a way to record messages while the program is running. These messages can help us understand what the program is doing.
-# We will log important events (like operations being performed or errors happening) to a file called `calculator.log`.
+import pdb  # Python debugger for interactive debugging sessions.
+# Documentation: https://docs.python.org/3/library/pdb.html
 
+from abc import ABC, abstractmethod  # For creating abstract base classes (ABCs).
+# Documentation: https://docs.python.org/3/library/abc.html
+
+from dataclasses import dataclass  # Provides a decorator and functions for automatically adding special methods to classes.
+# Documentation: https://docs.python.org/3/library/dataclasses.html
+
+from typing import List  # Provides support for type hints.
+# Documentation: https://docs.python.org/3/library/typing.html
+
+# ==============================================================================
+# SETUP LOGGING CONFIGURATION
+# ==============================================================================
+
+# Configure the logging settings for the application.
+# Logging is crucial for tracking events and diagnosing issues in applications.
 logging.basicConfig(
-    filename='calculator.log',  # This is the file where logs will be saved.
-    level=logging.DEBUG,  # We are setting the logging level to DEBUG, which means we will capture detailed logs.
-    format='%(asctime)s - %(levelname)s - %(message)s'  # This defines the format of our log messages.
+    filename='calculator.log',  # Specifies the file to write log messages to.
+    level=logging.DEBUG,  # Sets the logging level to DEBUG; captures all levels (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+    format='%(asctime)s - %(levelname)s - %(message)s'  # Defines the format of the log messages.
+    # Format placeholders:
+    # %(asctime)s - Timestamp of the log entry.
+    # %(levelname)s - Severity level of the log message.
+    # %(message)s - The actual log message.
 )
 
-# ------------------------------------------------------------------------------
-# PART 1: OPERATION CLASSES (Command and Template Method Patterns with Logging)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# OPERATION CLASSES (COMMAND AND TEMPLATE METHOD PATTERNS)
+# ==============================================================================
 
-# Let's start by creating **Operation** classes using the **Command Pattern** and **Template Method Pattern**.
-# A command is like an instruction (e.g., "Add these two numbers"). We want each operation (like addition or subtraction)
-# to be treated as a command that the calculator can "execute."
+# Who: These classes are the core components that perform arithmetic operations.
+# What: Implement arithmetic operations using design patterns.
+# Why: To demonstrate OOP principles and design patterns for clean, maintainable code.
+# Where: In the calculator application we are building.
+# When: Whenever an arithmetic operation is requested.
+# How: By defining a base class and extending it for specific operations.
 
-# We'll also use the **Template Method Pattern** here. This allows us to define a "template" or structure for how all
-# operations are performed (e.g., validate inputs, perform operation, log result). Each specific operation 
-# (like addition or subtraction) will just fill in the details for the calculation part.
+# We will implement the Command Pattern, where each operation (e.g., addition, subtraction)
+# is encapsulated as an object. The Template Method Pattern is used to define the
+# skeleton of an algorithm, deferring some steps to subclasses.
 
 class TemplateOperation(ABC):
-    """Abstract class representing a mathematical operation using the Template Method pattern."""
-    
-    # This method defines the overall structure (template) for performing a calculation:
-    # 1. Validate inputs to make sure they’re numbers.
-    # 2. Perform the specific operation (like adding or multiplying).
-    # 3. Log the result.
+    """
+    Abstract base class representing a mathematical operation using the Template Method pattern.
+    - Inherits from ABC to make it an abstract base class.
+    - The Template Method Pattern defines the steps of an algorithm.
+    """
     def calculate(self, a: float, b: float) -> float:
-        """Template method that defines the structure for performing an operation."""
+        """
+        Template method that defines the structure for performing an operation.
+        Steps:
+        1. Validate inputs.
+        2. Execute the operation.
+        3. Log the result.
+        """
         self.validate_inputs(a, b)  # Step 1: Validate the inputs.
-        result = self.execute(a, b)  # Step 2: Perform the operation.
-        self.log_result(a, b, result)  # Step 3: Log the result.
-        return result
+        result = self.execute(a, b)  # Step 2: Perform the specific operation.
+        self.log_result(a, b, result)  # Step 3: Log the operation and the result.
+        return result  # Return the result of the operation.
 
     def validate_inputs(self, a: float, b: float):
-        """Common validation for all operations to ensure inputs are numbers."""
+        """
+        Common validation method to ensure inputs are numbers.
+        Raises a ValueError if inputs are not numeric types.
+        """
         if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
-            logging.error(f"Invalid input: {a}, {b} (Inputs must be numbers)")  # Log the error if inputs are not numbers.
-            raise ValueError("Both inputs must be numbers.")  # If either input is not a number, raise an error.
+            logging.error(f"Invalid input: {a}, {b} (Inputs must be numbers)")  # Log an error message.
+            raise ValueError("Both inputs must be numbers.")  # Raise an exception.
 
     @abstractmethod
     def execute(self, a: float, b: float) -> float:
-        """Perform the specific operation. This method will be defined by each subclass."""
-        pass
+        """
+        Abstract method to perform the specific operation.
+        Must be implemented by subclasses.
+        """
+        pass  # This method will be overridden in child classes.
 
     def log_result(self, a: float, b: float, result: float):
-        """Log the result of the calculation."""
-        logging.info(f"Operation performed: {a} and {b} -> Result: {result}")  # Log the operation and the result.
+        """
+        Logs the result of the calculation.
+        """
+        logging.info(f"Operation performed: {a} and {b} -> Result: {result}")  # Log an informational message.
 
-# Now, we’ll create specific operation classes that follow this template.
-# Each operation class will provide its own version of the `execute` method.
+# Concrete operation classes implementing specific arithmetic operations.
+# Each class represents a specific operation and extends the TemplateOperation base class.
 
 class Addition(TemplateOperation):
-    """Class to represent the addition operation."""
-    
+    """
+    Class to represent the addition operation.
+    Inherits from TemplateOperation.
+    """
     def execute(self, a: float, b: float) -> float:
-        """Return the sum of two numbers."""
-        return a + b  # Simple addition.
+        """
+        Returns the sum of two numbers.
+        """
+        return a + b  # Perform addition.
 
 class Subtraction(TemplateOperation):
-    """Class to represent the subtraction operation."""
-    
+    """
+    Class to represent the subtraction operation.
+    Inherits from TemplateOperation.
+    """
     def execute(self, a: float, b: float) -> float:
-        """Return the difference between two numbers."""
-        return a - b  # Simple subtraction.
+        """
+        Returns the difference between two numbers.
+        """
+        return a - b  # Perform subtraction.
 
 class Multiplication(TemplateOperation):
-    """Class to represent the multiplication operation."""
-    
+    """
+    Class to represent the multiplication operation.
+    Inherits from TemplateOperation.
+    """
     def execute(self, a: float, b: float) -> float:
-        """Return the product of two numbers."""
-        return a * b  # Simple multiplication.
+        """
+        Returns the product of two numbers.
+        """
+        return a * b  # Perform multiplication.
 
 class Division(TemplateOperation):
-    """Class to represent the division operation."""
-    
+    """
+    Class to represent the division operation.
+    Inherits from TemplateOperation.
+    """
     def execute(self, a: float, b: float) -> float:
-        """Return the quotient of two numbers. Raise an error if dividing by zero."""
+        """
+        Returns the quotient of two numbers.
+        Raises a ValueError if attempting to divide by zero.
+        """
         if b == 0:
-            logging.error("Attempted to divide by zero.")  # Log an error if there is an attempt to divide by zero.
-            raise ValueError("Division by zero is not allowed.")  # Can't divide by zero!
-        return a / b  # Simple division.
+            logging.error("Attempted to divide by zero.")  # Log an error message.
+            raise ValueError("Division by zero is not allowed.")  # Raise an exception.
+        return a / b  # Perform division.
 
-# Logging inside these operation classes helps us track which operations are being performed
-# and when errors (like division by zero) occur.
+# Why use the Template Method Pattern here?
+# - It defines the algorithm's skeleton in a method (`calculate`), deferring some steps (`execute`) to subclasses.
+# - Promotes code reuse and enforces a consistent structure across different operations.
 
-# ------------------------------------------------------------------------------
-# PART 2: FACTORY PATTERN FOR CREATING OPERATIONS (with Logging)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# FACTORY PATTERN FOR CREATING OPERATIONS
+# ==============================================================================
 
-# Now let’s add the **Factory Pattern**. This pattern allows us to create objects (in this case, math operations)
-# without having to manually specify which class to use each time. It’s like a "machine" that creates the correct 
-# object based on a user’s request (e.g., 'add' or 'subtract').
+# Who: The OperationFactory class.
+# What: Creates instances of operation classes based on a given operation name.
+# Why: To encapsulate object creation, promoting loose coupling and adherence to the Open/Closed Principle.
+# Where: Used whenever a new operation needs to be created based on user input.
+# When: At runtime, during the calculator's execution.
+# How: By mapping operation names to their corresponding classes.
 
 class OperationFactory:
-    """Factory class to create instances of operations based on the operation type."""
-    
+    """
+    Factory class to create instances of operations based on the operation type.
+    Implements the Factory Pattern.
+    """
     @staticmethod
     def create_operation(operation: str) -> TemplateOperation:
-        """Return an instance of the appropriate Operation subclass based on the operation string."""
-        # A dictionary (menu) that maps operation names to their respective classes.
+        """
+        Returns an instance of the appropriate Operation subclass based on the operation string.
+        Parameters:
+        - operation (str): The operation name (e.g., 'add', 'subtract').
+        """
+        # Dictionary mapping operation names to their corresponding class instances.
         operations_map = {
             "add": Addition(),
             "subtract": Subtraction(),
             "multiply": Multiplication(),
             "divide": Division(),
         }
-        # Log the operation request.
+        # Log the operation creation request at DEBUG level.
         logging.debug(f"Creating operation for: {operation}")
-        # The factory will return the appropriate operation object based on the string provided by the user.
-        return operations_map.get(operation.lower())
+        # Retrieve the operation instance from the map.
+        return operations_map.get(operation.lower())  # Returns None if the key is not found.
 
-# The Factory Pattern keeps our code flexible. If we want to add more operations later (like squaring a number),
-# we only need to add them to this factory instead of changing the whole program.
+# Why use the Factory Pattern?
+# - It provides a way to create objects without specifying the exact class.
+# - Enhances flexibility and scalability; new operations can be added without modifying existing code.
 
-# ------------------------------------------------------------------------------
-# PART 3: OBSERVER PATTERN FOR TRACKING HISTORY (with Logging)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# OBSERVER PATTERN FOR TRACKING HISTORY
+# ==============================================================================
 
-# Next, let’s implement the **Observer Pattern**. This pattern allows us to notify other parts of the program 
-# when something important happens. In our case, when a new calculation is added, we can notify any "observers" 
-# that are "watching" for updates. Think of it like a "news system" – when a new story (calculation) is added, 
-# we notify all subscribers (observers).
+# Who: The HistoryObserver and CalculatorWithObserver classes.
+# What: Allows observers to be notified of changes in the calculation history.
+# Why: To promote loose coupling between the calculator and observers, adhering to the Observer Pattern.
+# Where: In the calculator's history management.
+# When: Whenever a new calculation is performed.
+# How: Observers register themselves with the calculator and are notified upon updates.
 
 class HistoryObserver:
-    """Observer that gets notified whenever a new calculation is added to history."""
-    
+    """
+    Observer that gets notified whenever a new calculation is added to history.
+    Implements the Observer Pattern.
+    """
     def update(self, calculation):
-        """Called when a new calculation is added."""
-        logging.info(f"Observer: New calculation added -> {calculation}")  # Log when an observer is notified.
-
-# We will now integrate this observer into our calculator class, so that every time a new calculation is added,
-# the observer gets notified.
+        """
+        Called when a new calculation is added to the history.
+        Parameters:
+        - calculation (Calculation): The calculation object that was added.
+        """
+        # Log the notification at INFO level.
+        logging.info(f"Observer: New calculation added -> {calculation}")
 
 class CalculatorWithObserver:
-    """Calculator class with observer support for tracking calculation history."""
-    
+    """
+    Calculator class with observer support for tracking calculation history.
+    Maintains a list of observers and notifies them of changes.
+    """
     def __init__(self):
-        self._history: List[Calculation] = []  # A list to store the calculation history.
-        self._observers: List[HistoryObserver] = []  # A list of observers (people watching for updates).
+        self._history: List[Calculation] = []  # List to store calculation history.
+        self._observers: List[HistoryObserver] = []  # List of observers.
 
     def add_observer(self, observer: HistoryObserver):
-        """Add an observer to be notified when history is updated."""
-        self._observers.append(observer)
-        logging.debug(f"Observer added: {observer}")  # Log when an observer is added.
+        """
+        Adds an observer to be notified when history is updated.
+        Parameters:
+        - observer (HistoryObserver): The observer to add.
+        """
+        self._observers.append(observer)  # Add the observer to the list.
+        logging.debug(f"Observer added: {observer}")  # Log the addition.
 
     def notify_observers(self, calculation):
-        """Notify all observers when a new calculation is added."""
+        """
+        Notifies all observers when a new calculation is added.
+        Parameters:
+        - calculation (Calculation): The calculation object that was added.
+        """
         for observer in self._observers:
-            observer.update(calculation)  # Notify the observer.
-            logging.debug(f"Notified observer about: {calculation}")  # Log when an observer is notified.
+            observer.update(calculation)  # Call the update method on the observer.
+            logging.debug(f"Notified observer about: {calculation}")  # Log the notification.
 
     def perform_operation(self, operation: TemplateOperation, a: float, b: float):
-        """Perform the operation, store it in history, and notify observers."""
-        calculation = Calculation(operation, a, b)
+        """
+        Performs the operation, stores it in history, and notifies observers.
+        Parameters:
+        - operation (TemplateOperation): The operation to perform.
+        - a (float): The first operand.
+        - b (float): The second operand.
+        Returns:
+        - The result of the operation.
+        """
+        calculation = Calculation(operation, a, b)  # Create a new Calculation object.
         self._history.append(calculation)  # Add the calculation to the history.
-        self.notify_observers(calculation)  # Notify all observers that a new calculation has been added.
-        logging.debug(f"Performed operation: {calculation}")  # Log the operation performed.
-        return operation.calculate(a, b)  # Use the Template Method to calculate the result.
+        self.notify_observers(calculation)  # Notify observers of the new calculation.
+        logging.debug(f"Performed operation: {calculation}")  # Log the operation.
+        return operation.calculate(a, b)  # Execute the calculation and return the result.
 
-# The **Observer Pattern** is great because it lets us extend our system to notify other parts (like a UI or log system)
-# when something important happens, like adding a new calculation.
+# Why use the Observer Pattern?
+# - Decouples the calculator from the observers, allowing for dynamic addition/removal of observers.
+# - Promotes a one-to-many dependency between objects, so when one object changes state, all dependents are notified.
 
-# ------------------------------------------------------------------------------
-# PART 4: SINGLETON PATTERN FOR ENSURING ONE CALCULATOR INSTANCE
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# SINGLETON PATTERN FOR ENSURING ONE CALCULATOR INSTANCE
+# ==============================================================================
 
-# Now let’s add the **Singleton Pattern**. This pattern ensures that only one instance of a class exists throughout the program.
-# For example, if there’s only one vending machine in the office, everyone has to use the same machine. The Singleton 
-# Pattern is useful when you want to share resources (like calculation history) across the whole program.
+# Who: The SingletonCalculator class.
+# What: Ensures only one instance of the calculator exists.
+# Why: To have a single shared state (e.g., calculation history) across the application.
+# Where: In scenarios where shared resources are needed.
+# When: Throughout the application's lifecycle.
+# How: By controlling instance creation using the __new__ method.
 
 class SingletonCalculator:
-    """A calculator using the Singleton pattern to ensure only one instance exists."""
-    _instance = None  # This is where we store the single instance of the class.
+    """
+    A calculator using the Singleton pattern to ensure only one instance exists.
+    """
+    _instance = None  # Class variable to hold the singleton instance.
 
     def __new__(cls):
-        """Override __new__ to ensure only one instance of the class is created."""
+        """
+        Overrides the __new__ method to control the creation of a new instance.
+        Ensures that only one instance is created.
+        """
         if cls._instance is None:
-            cls._instance = super(SingletonCalculator, cls).__new__(cls)  # Create the single instance.
-            cls._history = []  # Initialize the history here.
-            logging.info("SingletonCalculator instance created.")  # Log the creation of the Singleton instance.
-        return cls._instance
+            cls._instance = super(SingletonCalculator, cls).__new__(cls)  # Call the superclass __new__ method.
+            cls._history = []  # Initialize the shared history.
+            logging.info("SingletonCalculator instance created.")  # Log the creation.
+        return cls._instance  # Return the singleton instance.
 
     def perform_operation(self, operation: TemplateOperation, a: float, b: float) -> float:
-        """Perform the given operation and store the calculation in history."""
-        calculation = Calculation(operation, a, b)
-        self._history.append(calculation)  # Add the calculation to the history.
-        logging.debug(f"SingletonCalculator: Performed operation -> {calculation}")  # Log the operation performed.
-        return operation.calculate(a, b)  # Use the Template Method to calculate the result.
+        """
+        Performs the given operation and stores the calculation in history.
+        Parameters:
+        - operation (TemplateOperation): The operation to perform.
+        - a (float): The first operand.
+        - b (float): The second operand.
+        Returns:
+        - The result of the operation.
+        """
+        calculation = Calculation(operation, a, b)  # Create a new Calculation object.
+        self._history.append(calculation)  # Add the calculation to the shared history.
+        logging.debug(f"SingletonCalculator: Performed operation -> {calculation}")  # Log the operation.
+        return operation.calculate(a, b)  # Execute the calculation and return the result.
 
     def get_history(self):
-        """Return the history of calculations."""
-        pdb.set_trace()  # This line will trigger the debugger.
+        """
+        Returns the history of calculations.
+        Includes a breakpoint for debugging using pdb.
+        """
+       # pdb.set_trace()  # Pause execution here for debugging.
+        return self._history  # Return the shared history list.
 
-        return self._history  # Return the shared history.
+# Why use the Singleton Pattern?
+# - To control access to a shared resource.
+# - Ensures that there's only one point of interaction with the resource.
 
-# The **Singleton Pattern** makes sure there is only one instance of the calculator, so the history is shared across 
-# all uses. Every time you use the calculator, you’re working with the same instance!
+# ==============================================================================
+# STRATEGY PATTERN FOR OPERATION SELECTION
+# ==============================================================================
 
-# ------------------------------------------------------------------------------
-# PART 5: STRATEGY PATTERN FOR OPERATION SELECTION
-# ------------------------------------------------------------------------------
+# Who: The Calculation class.
+# What: Represents a calculation using a specific strategy (operation).
+# Why: To encapsulate algorithms (operations) and make them interchangeable.
+# Where: In the execution of calculations.
+# When: When performing operations on operands.
+# How: By holding a reference to a strategy object and executing it.
 
-# The **Strategy Pattern** lets us choose the appropriate operation (strategy) dynamically, based on user input.
-# The user doesn’t need to know how each operation works – they just tell the calculator what they want to do (e.g., 'add'),
-# and the correct strategy is selected.
-
-@dataclass
+@dataclass  # Decorator to automatically generate special methods like __init__.
 class Calculation:
-    """Represents a single calculation using the Strategy Pattern (choosing the correct operation)."""
-    operation: TemplateOperation  # The operation to be performed (strategy).
-    operand1: float
-    operand2: float
+    """
+    Represents a single calculation using the Strategy Pattern.
+    Holds the operation (strategy) and operands.
+    """
+    operation: TemplateOperation  # The operation to execute (strategy).
+    operand1: float  # The first operand.
+    operand2: float  # The second operand.
 
     def __repr__(self) -> str:
+        """
+        Official string representation of the Calculation object.
+        Used for debugging and logging.
+        """
         return f"Calculation({self.operand1}, {self.operation.__class__.__name__.lower()}, {self.operand2})"
 
     def __str__(self) -> str:
-        # Dynamically calculate the result by calling the operation's calculate method.
-        result = self.operation.calculate(self.operand1, self.operand2)
+        """
+        User-friendly string representation of the calculation and result.
+        """
+        result = self.operation.calculate(self.operand1, self.operand2)  # Perform the calculation.
         return f"{self.operand1} {self.operation.__class__.__name__.lower()} {self.operand2} = {result}"
 
-# The **Strategy Pattern** lets us swap different operations in and out easily. The calculator just uses whatever operation 
-# (strategy) is selected by the user without needing to know how it works internally.
+# Why use the Strategy Pattern?
+# - Allows the algorithm (operation) to vary independently from the clients that use it.
+# - Promotes flexibility and reuse of algorithms.
 
-# ------------------------------------------------------------------------------
-# PART 6: MAIN CALCULATOR PROGRAM (REPL Interface with Debugging)
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# MAIN CALCULATOR PROGRAM (REPL INTERFACE WITH DEBUGGING)
+# ==============================================================================
 
-# Now, let's build the **REPL** (Read-Eval-Print Loop), where the user can interact with the calculator.
-# We’ll also add debugging using the `pdb` (Python Debugger) module.
+# Who: The calculator() function.
+# What: Provides an interactive command-line interface for users to perform calculations.
+# Why: To allow users to interact with the calculator in real-time.
+# Where: In the main execution of the program.
+# When: When the script is run directly.
+# How: By implementing a Read-Eval-Print Loop (REPL).
 
 def calculator():
-    """Interactive REPL for performing calculator operations."""
-    
-    # Create a new instance of the calculator with observer support.
+    """
+    Interactive REPL (Read-Eval-Print Loop) for performing calculator operations.
+    Provides a command-line interface for users to interact with the calculator.
+    """
+    import pdb  # Import pdb module for debugging.
+
+    # Create an instance of the calculator with observer support.
     calc = CalculatorWithObserver()
-    
-    # Create an observer to track history.
+
+    # Create an observer to monitor calculation history.
     observer = HistoryObserver()
+
+    # Add the observer to the calculator's list of observers.
     calc.add_observer(observer)
-    
+
+    # Display a welcome message and instructions.
     print("Welcome to the OOP Calculator! Type 'help' for available commands.")
-    
+
+    # Start the REPL loop.
     while True:
-        # Ask the user for input.
-        user_input = input("Enter an operation (add, subtract, multiply, divide) and two numbers, or a command (help, list, clear, exit): ")
-        
-        # Handle the "help" command to show available commands.
+        # Prompt the user for input.
+        user_input = input("Enter an operation and two numbers, or a command: ")
+
+        # Handle the 'help' command.
         if user_input.lower() == "help":
             print("\nAvailable commands:")
             print("  add <num1> <num2>       : Add two numbers.")
             print("  subtract <num1> <num2>  : Subtract the second number from the first.")
             print("  multiply <num1> <num2>  : Multiply two numbers.")
-            print("  divide <num1> <num2>    : Divide the first number by the second (cannot divide by zero).")
+            print("  divide <num1> <num2>    : Divide the first number by the second.")
             print("  list                    : Show the calculation history.")
             print("  clear                   : Clear the calculation history.")
             print("  exit                    : Exit the calculator.\n")
-            continue
+            continue  # Return to the start of the loop.
 
-        # Handle the "exit" command to quit the program.
+        # Handle the 'exit' command.
         if user_input.lower() == "exit":
             print("Exiting calculator...")
-            break
+            break  # Exit the loop and end the program.
 
-        # Handle the "list" command to show calculation history.
+        # Handle the 'list' command to display calculation history.
         if user_input.lower() == "list":
             if not calc._history:
                 print("No calculations in history.")
             else:
                 for calc_item in calc._history:
-                    print(calc_item)
-            continue
+                    print(calc_item)  # Calls __str__ method of Calculation.
+            continue  # Return to the start of the loop.
 
-        # Handle the "clear" command to clear the calculation history.
+        # Handle the 'clear' command to clear the history.
         if user_input.lower() == "clear":
-            calc._history.clear()
-            logging.info("History cleared.")  # Log when history is cleared.
+            calc._history.clear()  # Clear the history list.
+            logging.info("History cleared.")  # Log the action.
             print("History cleared.")
-            continue
+            continue  # Return to the start of the loop.
 
-        # Otherwise, assume the user entered an operation.
+        # Attempt to parse and execute the user's command.
         try:
-            # Use the debugger to inspect the input before parsing it.
-            
-            operation_str, num1, num2 = user_input.split()
-            num1, num2 = float(num1), float(num2)
+            # Set a breakpoint for debugging.
+            # pdb.set_trace()  # Execution will pause here, allowing inspection of variables.
 
-            # Use the Factory to get the correct operation.
+            # Split the user input into components.
+            operation_str, num1_str, num2_str = user_input.split()  # May raise ValueError.
+
+            # Convert the operand strings to float.
+            num1, num2 = float(num1_str), float(num2_str)  # May raise ValueError.
+
+            # Use the factory to create the appropriate operation object.
             operation = OperationFactory.create_operation(operation_str)
 
-            # If the operation exists, perform it.
             if operation:
+                # Perform the operation using the calculator.
                 result = calc.perform_operation(operation, num1, num2)
+                # Display the result to the user.
                 print(f"Result: {result}")
             else:
+                # Handle unknown operation names.
                 print(f"Unknown operation '{operation_str}'. Type 'help' for available commands.")
 
         except ValueError as e:
-            logging.error(f"Invalid input or error: {e}")  # Log any errors encountered.
+            # Handle errors such as incorrect input format or invalid numbers.
+            logging.error(f"Invalid input or error: {e}")  # Log the error.
             print("Invalid input. Please enter a valid operation and two numbers. Type 'help' for instructions.")
 
-if __name__ == "__main__":
-    calculator()
+# Why use a REPL?
+# - Provides an interactive way for users to execute commands and see immediate results.
+# - Enhances user experience and allows for real-time feedback.
 
-# ------------------------------------------------------------------------------
-# Summary of the Design Patterns and Debugging Techniques Used:
-# 1. **Factory Pattern**: We used the Factory to create different operation objects (like Addition or Subtraction) based on user input.
-# 2. **Command Pattern**: Each operation (Addition, Subtraction, etc.) is treated as a command that the calculator can execute.
-# 3. **Strategy Pattern**: The calculator selects the appropriate operation dynamically at runtime based on user input.
-# 4. **Template Method Pattern**: We defined a common structure for performing operations (validate, execute, log) and let each operation define its own calculation.
-# 5. **Observer Pattern**: We created observers that get notified whenever a new calculation is added to the history.
-# 6. **Singleton Pattern**: We used the Singleton Pattern to ensure that there is only one instance of the calculator, ensuring shared history across all uses.
-#
-# Logging:
-# - We added logging to track key events, such as operations being performed, errors (e.g., division by zero), and history being cleared.
-# - Logs are written to a file called `calculator.log`.
-#
-# Debugging:
-# - We added `pdb.set_trace()` to pause the program execution and inspect the input before parsing it. This allows us to step through the code, inspect variables, and debug any issues interactively.
-#
-# This is the ultimate masterclass in OOP, design patterns, logging, and debugging techniques!
+# ==============================================================================
+# RUNNING THE CALCULATOR PROGRAM
+# ==============================================================================
+
+if __name__ == "__main__":
+    # This block ensures that the calculator runs only when the script is executed directly.
+    # It will not run if the script is imported as a module.
+    calculator()  # Call the main calculator function to start the REPL.
+
+# General Programming Good Practices Demonstrated:
+# - **Modular Design**: The code is organized into classes and functions, making it easier to understand and maintain.
+# - **Encapsulation**: Data and methods are encapsulated within classes, promoting data hiding and abstraction.
+# - **Inheritance and Polymorphism**: Base classes define common interfaces, and derived classes implement specific behaviors.
+# - **Exception Handling**: The code anticipates and handles potential errors gracefully, providing informative feedback.
+# - **Logging**: Comprehensive logging is implemented to track the application's behavior and assist in debugging.
+# - **Type Hinting**: Type hints improve code readability and help with static analysis tools.
+# - **Documentation and Comments**: Detailed comments and docstrings explain the purpose and functionality of code components.
+# - **Adherence to PEP 8**: The code follows Python's style guidelines for improved readability.
+
+# Additional Resources and References:
+# - **Abstract Base Classes (`abc` module)**:
+#   - Reference: https://docs.python.org/3/library/abc.html
+# - **Data Classes (`dataclasses` module)**:
+#   - Reference: https://docs.python.org/3/library/dataclasses.html
+# - **Type Hints (`typing` module)**:
+#   - Reference: https://docs.python.org/3/library/typing.html
+# - **Logging (`logging` module)**:
+#   - Reference: https://docs.python.org/3/library/logging.html
+# - **Python Debugger (`pdb` module)**:
+#   - Reference: https://docs.python.org/3/library/pdb.html
+# - **Design Patterns in Python**:
+#   - Reference: https://refactoring.guru/design-patterns/python
+# - **PEP 8 - Style Guide for Python Code**:
+#   - Reference: https://www.python.org/dev/peps/pep-0008/
+
+# Conclusion:
+# This code serves as a comprehensive example of how to implement several key object-oriented design patterns in Python.
+# By understanding the who, what, why, where, when, and how of each component, students can gain a deeper appreciation
+# for the art and science of OOP. The combination of design patterns, logging, debugging, and good programming practices
+# results in code that is robust, maintainable, and scalable.
